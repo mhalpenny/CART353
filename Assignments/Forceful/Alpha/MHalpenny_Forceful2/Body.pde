@@ -1,6 +1,6 @@
 class Body {
   
-  PVector location;
+  public PVector location;
   PVector velocity;
   PVector acceleration;
   float mass = 1;
@@ -8,7 +8,7 @@ class Body {
   
   Body(){
     
-    location = new PVector(width/2, height/2);
+    this.location = new PVector(width/2, height/2);
     velocity = new PVector(0,0);
     acceleration = new PVector(0,0);
     

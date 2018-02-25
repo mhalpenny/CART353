@@ -28,7 +28,6 @@ void draw(){
   dna.display();
   for(int i=0; i< letterCount; i++){
   letters[i].display();
-  letters[i].orbit();
   }
   dna.eat();
 
