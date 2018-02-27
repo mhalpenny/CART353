@@ -1,14 +1,14 @@
 //Matthew Halpenny
 //Forceful for CART 353
-//All images used under CC - credits to Ana María Lora Macias & Marek Polakovic
+//All images used under CC - credits to Ana María Lora Macias, Andrea Severgnini, & Marek Polakovic
 
 //The user controls the ball with their mouse, it will be pulled towards the mouse position. The ball
 //responds to physical propeties such as velocity and acceleration which will affect how the game is played. 
 //The goal is to amass as much text as possible, doing so will increase the balls mass (density in this case) and 
-//create a growing field around the ball. The balls density will affect it within the tar traps, so it is crucial to 
-//avoid these while large as the player will get immobilized. As the ball becomes denser is will become easier for text
-//to seperate from the ball, meaning you can lose points. This is based off atomic properties where larger elements lose
-//eletrons more easily due to distance from the electromagnetic core. To avoid this the blue power ups will grant a 
+//create a growing field around the ball. The balls density will affect it within the traps, so it is crucial to 
+//avoid these while large as the player will get immobilized or go so fast they might send text out of orbit. As the ball becomes denser
+// is will become easier for text to seperate from the ball, meaning you can lose points. This is based off atomic properties where 
+//larger elements lose eletrons more easily due to distance from the electromagnetic core. To avoid this the blue power ups will grant a 
 //stronger pull on the text. Magnets will also attempt to pull away text, they are to be avoided. 
 
 
@@ -23,25 +23,28 @@ Text[] letters = new Text[100];
 //powerUp objects increase the balls physics powers, such as increased pull on letters
 Power[] powerUp = new Power[2];
 //magnet objects will attempt to pull away letters from the ball object
-Pole[] magnet = new Pole[15];
-//sand objects slow down the ball
-Tar[] sand = new Tar[5];
+Pole[] magnet = new Pole[20];
+//Trap objects slow down or speed up the ball
+Trap[] sand = new Trap[3];
+Trap[] oil = new Trap[3];
 
 //variables that are nested in loops across the skecth, allows a global change in value
 int letterCount = 100;
-int magnetCount = 15;
+int magnetCount = 20;
+int trapCount = 3;
 //global variable that adjusts friction on the ball object. must be accessed across classes and should not be a property of the ball.
 float frictionVal;
 //global variable that adjusts the magnitude of acceleration the ball exerts of letters. amplitude is not an accessible property otherwise
 float gravForce = 0.5;
+//the velocity limit for the ball, affected by oil
+float vLimit = 2.5;
 
 //a boolean array to check if the letters are currently orbiting the ball, used in mass calculation in Body class
 boolean[] follow = new boolean[100];
+
 //ends the game is true
 boolean end = false;
 
-//float[] tarX = new float[5];
-//float[] tarY = new float[5];
 
 void setup(){
   size(1000, 700);
@@ -58,10 +61,9 @@ void setup(){
    for(int i=0; i< magnetCount; i++){
   magnet[i] = new Pole();
   }
-  for(int i=0; i< 5; i++){
-  sand[i] = new Tar();
-  //tarX[i] = sand[i].location.x;
-  //tarY[i] = sand[i].location.x;
+  for(int i=0; i< trapCount; i++){
+  sand[i] = new Trap("sand");
+  oil[i] = new Trap("oil");
   }
    for(int i=0; i< 2; i++){
   powerUp[i] = new Power();
@@ -86,10 +88,10 @@ void draw(){
    magnet[i].display();
    }
    
-   //display sand objects and check if the are colliding with the ball (friction)
-    for(int i=0; i< 5; i++){
+   //display sand and oil objects
+    for(int i=0; i< trapCount; i++){
    sand[i].display();
-   //sand[i].checkForce();
+   oil[i].display();
    }
    
    //display powerUp objects and if collision with the ball increase "pull" force
@@ -100,7 +102,7 @@ void draw(){
   
   //recalculate ball physics
   ball.update();
-  //exert friction on ball
+  //check the balls distance from any traps and exert the appropriate friction
   ball.friction();
   //draw ball
   ball.display();

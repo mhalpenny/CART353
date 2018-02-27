@@ -1,6 +1,6 @@
 //The Tar class is used to create sand trap objects 
 
-class Tar {
+class Trap {
   
   //location vectors are important for calculating vectors for friction
   public PVector location;
@@ -8,7 +8,7 @@ class Tar {
   PImage tar;
   //float x,y;
 
-  Tar() {
+  Trap() {
 
     //calculate random xy
     float x = random(0, width);

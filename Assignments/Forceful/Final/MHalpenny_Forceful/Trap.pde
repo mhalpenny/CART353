@@ -1,14 +1,16 @@
 //The Tar class is used to create sand trap objects 
 
-class Tar {
+class Trap {
   
   //location vectors are important for calculating vectors for friction
   public PVector location;
   //PImage is used to store the icons
-  PImage tar;
-  //float x,y;
+  PImage img;
+  //strings allow us to change the icon that is loaded in the constructor
+  String icon;
 
-  Tar() {
+//The contructor takes a string argument named after the trap to draw the appropriate icon
+  Trap(String icon) {
 
     //calculate random xy
     float x = random(0, width);
@@ -18,7 +20,7 @@ class Tar {
     this.location = new PVector(x, y);
     
     //load icon
-    tar = loadImage("sand.png");
+    img = loadImage(icon + ".png");
   }
 
 //the display method draws the magnets on screen every draw() cycle
@@ -40,9 +42,9 @@ class Tar {
     //image and ellipse modes match for aligned icons
     imageMode(CENTER);
     //display icon which we loaded earlier
-    image(tar, 0, 0);
+    image(img, 0, 0);
     //by default the image will display at its standard size so we need to resize is using a PImage function
-    tar.resize(60, 60);
+    img.resize(60, 60);
     //exit the matrix
     popMatrix();
   }

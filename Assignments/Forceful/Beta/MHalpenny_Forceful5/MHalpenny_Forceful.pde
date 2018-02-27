@@ -24,8 +24,9 @@ Text[] letters = new Text[100];
 Power[] powerUp = new Power[2];
 //magnet objects will attempt to pull away letters from the ball object
 Pole[] magnet = new Pole[15];
-//sand objects slow down the ball
-Tar[] sand = new Tar[5];
+//Trap objects slow down or speed up the ball
+Trap[] sand = new Trap[3];
+Trap[] oil = new Trap[2];
 
 //variables that are nested in loops across the skecth, allows a global change in value
 int letterCount = 100;
@@ -40,8 +41,6 @@ boolean[] follow = new boolean[100];
 //ends the game is true
 boolean end = false;
 
-//float[] tarX = new float[5];
-//float[] tarY = new float[5];
 
 void setup(){
   size(1000, 700);
@@ -58,10 +57,9 @@ void setup(){
    for(int i=0; i< magnetCount; i++){
   magnet[i] = new Pole();
   }
-  for(int i=0; i< 5; i++){
-  sand[i] = new Tar();
-  //tarX[i] = sand[i].location.x;
-  //tarY[i] = sand[i].location.x;
+  for(int i=0; i< 3; i++){
+  sand[i] = new Trap();
+  oil[i] = new Trap();
   }
    for(int i=0; i< 2; i++){
   powerUp[i] = new Power();
