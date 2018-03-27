@@ -1,5 +1,11 @@
 var s;
 
+//before loading the page execute this function...
+function preload() {
+  //load string array from text file
+  s = loadStrings('assets/poem.txt');
+}
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   background(0);
@@ -13,7 +19,7 @@ function setup() {
 
   lexicon = new RiLexicon();
   //starting string
-  s = "Now mind is clear as a cloudless sky. Time then to make a home in wilderness.";
+  // s = "Now mind is clear as a cloudless sky. Time then to make a home in wilderness.";
   //process through rita
   processRita();
 
