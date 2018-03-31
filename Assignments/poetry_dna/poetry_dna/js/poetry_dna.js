@@ -29,7 +29,7 @@ function setup() {
   // s = "Now mind is clear as a cloudless sky. Time then to make a home in wilderness.";
 
   //run through poem array and compile string data for Rita
-  for(i=0;i<s.length;i++){
+  for (i = 0; i < s.length; i++) {
     sTemp += s[i];
   }
 
@@ -55,10 +55,10 @@ function processRita() {
   //variable for noun count
   var nouns = 0;
   //calculate the number of nouns in the string
-  for (var i = 0; i < pos.length; i++){
+  for (var i = 0; i < pos.length; i++) {
     if (pos[i] === 'nn') {
       //add one to variable
-       nouns += 1;
+      nouns += 1;
     }
   }
 
@@ -68,7 +68,7 @@ function processRita() {
     var mutate = random(nouns);
     var addition = random(nouns);
     //if the part of speech is a noun, randomize it
-    if ((pos[i] === 'nn') && (addition < (nouns)/6)) {
+    if ((pos[i] === 'nn') && (addition < (nouns) / 6)) {
       //output a random adjective
       output += lexicon.randomWord('jj');
       //add a space
@@ -79,12 +79,17 @@ function processRita() {
       output += ' ';
       //tell Rita a word has been added
       add = true;
-    } else if ((pos[i] === 'nn') && (mutate < (nouns)/3) && add == false) {
+    } else if ((pos[i] === 'nn') && (mutate < (nouns) / 3) && add == false) {
       //output a random noun
       output += lexicon.randomWord('nn');
       //add a space
       output += ' ';
-  } else {
+    } else if ((i % 8 == 0) && (i != 0)) {
+
+      output += "<br>";
+      output += ' ';
+
+    } else {
       //add a words from the original string back into the output
       output += words[i];
       //add a space
@@ -93,18 +98,20 @@ function processRita() {
     // console.log(i);
   }
 
-  text(output, width / 2, height / 2);
 
-saveText();
+  text(output, width / 2, height / 2, 500, 500);
+  saveText();
 
 }
 
-function saveText(){
+function saveText() {
 
   $.ajax({
-  type: "POST",
-  url: "saveToFile.php",
-   data : {'stringData':output},
+    type: "POST",
+    url: "saveToFile.php",
+    data: {
+      'stringData': output
+    },
   });
 
 }
