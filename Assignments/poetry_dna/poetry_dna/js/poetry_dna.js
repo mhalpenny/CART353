@@ -3,7 +3,9 @@ var s;
 var sTemp = '';
 var geneLength;
 //create an output RiString
-var output = '';
+var output = [];
+//line counter
+var outputNum = 0;
 
 //before loading the page execute this function...
 function preload() {
@@ -35,6 +37,8 @@ function setup() {
 
   console.log(s[0]);
 
+  //instantiate output strings
+  output[0] = '';
   //process through rita
   processRita();
 
@@ -70,36 +74,42 @@ function processRita() {
     //if the part of speech is a noun, randomize it
     if ((pos[i] === 'nn') && (addition < (nouns) / 6)) {
       //output a random adjective
-      output += lexicon.randomWord('jj');
+      output[outputNum] += lexicon.randomWord('jj');
       //add a space
-      output += ' ';
+      output[outputNum] += ' ';
       //add a words from the original string back into the output
-      output += words[i];
+      output[outputNum] += words[i];
       //add a space
-      output += ' ';
+      output[outputNum] += ' ';
       //tell Rita a word has been added
       add = true;
     } else if ((pos[i] === 'nn') && (mutate < (nouns) / 3) && add == false) {
       //output a random noun
-      output += lexicon.randomWord('nn');
+      output[outputNum] += lexicon.randomWord('nn');
       //add a space
-      output += ' ';
+      output[outputNum] += ' ';
     } else if ((i % 8 == 0) && (i != 0)) {
 
-      output += "<br>";
-      output += ' ';
+      outputNum += 1;
+      output[outputNum] = '';
 
     } else {
       //add a words from the original string back into the output
-      output += words[i];
+      output[outputNum] += words[i];
       //add a space
-      output += ' ';
+      output[outputNum] += ' ';
     }
     // console.log(i);
   }
 
-
-  text(output, width / 2, height / 2, 500, 500);
+//outputs text with line formatting
+  for (var i = 0; i < outputNum; i++) {
+    text(output[i], width / 2, ((height / 2)+(i*20)), 500, 500);
+  }
+  // text(output[0], width / 2, height / 2, 500, 500);
+  // text(output[1], width / 2, height / 2, 500, 500);
+  // text(output[2], width / 2, height / 2, 500, 500);
+  // text(output[3], width / 2, height / 2, 500, 500);
   saveText();
 
 }
