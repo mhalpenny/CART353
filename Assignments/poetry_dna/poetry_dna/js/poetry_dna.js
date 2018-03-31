@@ -1,9 +1,12 @@
 var s;
+//create an empty string to translate array
+var sTemp = '';
 
 //before loading the page execute this function...
 function preload() {
   //load string array from text file
-  s = loadStrings('assets/poem.txt');
+  s = loadStrings('poem.txt');
+
 }
 
 function setup() {
@@ -12,14 +15,23 @@ function setup() {
 
   //text properties...
   fill(255);
-  textSize(24);
+  textSize(18);
   textAlign(CENTER);
   //text box draw mode
   rectMode(CENTER);
 
   lexicon = new RiLexicon();
+
   //starting string
   // s = "Now mind is clear as a cloudless sky. Time then to make a home in wilderness.";
+
+  //run through poem array and compile string data for Rita
+  for(i=0;i<s.length;i++){
+    sTemp += s[i];
+  }
+
+  console.log(s[0]);
+
   //process through rita
   processRita();
 
@@ -28,12 +40,12 @@ function setup() {
 function processRita() {
 
   //create a Rita string
-  var rs = RiString(s);
+  var rs = RiString(sTemp);
   //analyze linguistics of the string
   var words = rs.words();
   var pos = rs.pos();
-  console.log(words);
-  console.log(pos);
+  // console.log(words);
+  // console.log(pos);
 
   //create an output RiString
   var output = '';
@@ -52,7 +64,7 @@ function processRita() {
     //create a mutation number so only a fixed number can mutate
     var mutate = random(nouns);
     //if the part of speech is a noun, randomize it
-    if ((pos[i] === 'nn') && (mutate < (nouns)/4)) {
+    if ((pos[i] === 'nn') && (mutate < (nouns)/6)) {
       //output a random noun
       output += lexicon.randomWord('nn');
       //add a space
@@ -63,9 +75,17 @@ function processRita() {
       //add a space
       output += ' ';
     }
-    console.log(i);
+    // console.log(i);
   }
 
   text(output, width / 2, height / 2);
-  // saveStrings(output, 'assets/poem.txt');
+
+$.ajax({
+type: "POST",
+url: "saveToFile.php",
+ data : {'stringData':output},
+success: function(resultData){
+          alert("Save Complete");
+      }
+});
 }
