@@ -71,6 +71,8 @@ function processRita() {
     //create a mutation number so only a fixed number can mutate
     var mutate = random(nouns);
     var addition = random(nouns);
+    //variable for line mutation
+    var lineBr = random(100);
     //if the part of speech is a noun, randomize it
     if ((pos[i] === 'nn') && (addition < (nouns) / 6)) {
       //output a random adjective
@@ -88,7 +90,7 @@ function processRita() {
       output[outputNum] += lexicon.randomWord('nn');
       //add a space
       output[outputNum] += ' ';
-    } else if ((i % 8 == 0) && (i != 0)) {
+    } else if (((i % 8 == 0) && (i != 0)) || (lineBr < 2) ) {
 
       outputNum += 1;
       output[outputNum] = '';
