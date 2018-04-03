@@ -1,0 +1,3 @@
+- abstraction only writes “dirty”
+- output[] won’t accept variables
+- php formatting save

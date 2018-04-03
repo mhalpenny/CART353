@@ -6,20 +6,27 @@ var geneLength;
 var output = [];
 //line counter
 var outputNum = 0;
+//language analysis variables
+var words, pos, add, nouns, rs;
+//line count for output
+var lineCount = 0;
 
 //before loading the page execute this function...
 function preload() {
   //load string array from text file
   s = loadStrings('poem.txt');
+  myFont = loadFont('assets/PitchTest-Regular.otf');
+
 
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(windowWidth, (windowHeight*2));
   background(0);
 
   //text properties...
   fill(255);
+  textFont(myFont);
   textSize(18);
   textAlign(CENTER);
   //text box draw mode
@@ -41,23 +48,21 @@ function setup() {
   output[0] = '';
   //process through rita
   processRita();
-
+  autopoesis();
 
 }
 
 function processRita() {
 
   //create a Rita string
-  var rs = RiString(sTemp);
+  rs = RiString(sTemp);
   //analyze linguistics of the string
-  var words = rs.words();
-  var pos = rs.pos();
-  var add = false;
-  // console.log(words);
-  // console.log(pos);
+  words = rs.words();
+  pos = rs.pos();
+  add = false;
 
   //variable for noun count
-  var nouns = 0;
+  nouns = 0;
   //calculate the number of nouns in the string
   for (var i = 0; i < pos.length; i++) {
     if (pos[i] === 'nn') {
@@ -65,6 +70,28 @@ function processRita() {
       nouns += 1;
     }
   }
+}
+
+//function crossOver();
+//function crossOverPoem();
+
+function duplicate(){
+
+    var rand = random(output.length);
+
+}
+
+//passes text without modification
+function passPrev(){
+
+  //add a words from the original string back into the output
+  output[outputNum] += words[i];
+  //add a space
+  output[outputNum] += ' ';
+
+}
+
+function autopoesis(){
 
   //compile an output string based on pos, nouns will be replaced randomly (mutations)
   for (var i = 0; i < words.length; i++) {
@@ -73,6 +100,7 @@ function processRita() {
     var addition = random(nouns);
     //variable for line mutation
     var lineBr = random(100);
+
     //if the part of speech is a noun, randomize it
     if ((pos[i] === 'nn') && (addition < (nouns) / 6)) {
       //output a random adjective
@@ -90,31 +118,48 @@ function processRita() {
       output[outputNum] += lexicon.randomWord('nn');
       //add a space
       output[outputNum] += ' ';
-    } else if (((i % 8 == 0) && (i != 0)) || (lineBr < 2) ) {
-
-      outputNum += 1;
-      output[outputNum] = '';
-
     } else {
       //add a words from the original string back into the output
       output[outputNum] += words[i];
       //add a space
       output[outputNum] += ' ';
     }
-    // console.log(i);
+
+    //seperates line via mutation
+    if (((i % 8 == 0) && (i != 0)) || (lineBr < 2)) {
+
+      outputNum += 1;
+      output[outputNum] = '';
+    }
+
+    console.log(i + ' ' + outputNum + ' ' + words[i]);
+
+  }
+  //outputs text with line formatting
+  for (var i = 0; i <= outputNum; i++) {
+
+    var lineDup = random(1000);
+
+
+    text(output[i], width / 2, (((height / 2) - 100) + (lineCount * 30)), 800, 1000);
+
+    // //additional post processing mutations
+    // if (lineDup <= 400){
+    //
+    // lineCount++;
+    // fill(255, 0 , 0);
+    // text(output[4], width / 2, (((height / 2) - 100) + (lineCount * 30)), 800, 1000);
+    // fill(255);
+    // }
+
+   lineCount++;
+
   }
 
-//outputs text with line formatting
-  for (var i = 0; i < outputNum; i++) {
-    text(output[i], width / 2, ((height / 2)+(i*20)), 500, 500);
-  }
-  // text(output[0], width / 2, height / 2, 500, 500);
-  // text(output[1], width / 2, height / 2, 500, 500);
-  // text(output[2], width / 2, height / 2, 500, 500);
-  // text(output[3], width / 2, height / 2, 500, 500);
+  //save rebuild poem into text file
   saveText();
-
 }
+
 
 function saveText() {
 
@@ -127,5 +172,3 @@ function saveText() {
   });
 
 }
-//function crossOver();
-//function crossOverPoem();
