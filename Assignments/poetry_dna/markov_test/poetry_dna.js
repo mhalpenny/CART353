@@ -13,17 +13,17 @@ var alt;
 //before loading the page execute this function...
 function preload() {
   //load string array from text file
-  // result = loadStrings('assets/test.txt');
+  data = loadStrings('nervous.txt');
   // alt = loadStrings('assets/alt.txt');
 }
 
 function setup() {
-createCanvas(windowWidth, windowHeight);
+createCanvas(windowWidth, (windowHeight*2));
 background(0);
 
 //text properties...
 fill(255);
-textSize(24);
+textSize(18);
 textAlign(CENTER);
 //text box draw mode
 rectMode(CENTER);
@@ -38,11 +38,11 @@ rectMode(CENTER);
 //   }
 // }
 
-var rm = new RiMarkov(4);
-rm.loadText("The girl went to a game after dinner. The teacher went to dinner with a girl.");
-var sentences = rm.generateSentences(2);
+var rm = new RiMarkov(2);
+rm.loadText(data.join(' '));
+var sentences = rm.generateSentences(8);
 
-text(sentences, width/2, height/2, 500, 200);
+text(sentences, width/2, (height/2 - 100), 800, 600);
 
 
 }

@@ -1,3 +1,5 @@
-- abstraction only writes “dirty”
-- output[] won’t accept variables
+
+- mArray won’t accept [values]
 - php formatting save
+- OOP?
+- abstraction isn’t working
