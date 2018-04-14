@@ -1,261 +1,318 @@
-//--VARIABLES-----------------------------
-//the original string will be stored here
-var s;
-//create an empty string to translate array
-var sTemp = '';
-//create an output array for each line of of the displayed text
-var output = [];
-//line counter to subvert the need to map i to lines
-var outputNum = 0;
-var lineCount = 0;
-//language analysis variables
-var words, pos, add, nouns, rs, markov, undef;
+//--POETRY.DNA----------------------------
+//Created by Matthew Halpenny
+//Created for CART353 taught by Rilla Khaled
+//PHP and JSON functions are modified from code created by Sabine Rosenberg
 
 
-//--PRELOAD-----------------------------
+//--VARIABLES----------------------------
+//Declares all global variables and arrays that will be used across the sketch
 
-//before loading the page execute this function...
+var train, myFont, rs, words, pos, lineNum, intLine, maxLine, lineBool;
+var arrayFromPhp = [];
+var lineArrayBuffer = [];
+var lineArray = [];
+var mutationArray = [];
+
+//--PRELOAD------------------------------
+//Before loading the page this function will execute, this ensures all assets...
+//are present before executing any additonal functions
+
 function preload() {
-  //load previous iteration of poem
-  s = loadStrings('poem.txt');
+  //recieves JSON data from previous run (formatting, words, mutations, etc.)
+  receiveData();
   //load training poems for markov generation
-  sm = loadStrings('poems.txt');
-  //font
+  train = loadStrings('assets/poems.txt');
+  //font to be displayed for poem
   myFont = loadFont('assets/PitchTest-Regular.otf');
 }
 
-//--SETUP-----------------------------
+//--SETUP--------------------------------
+//Initial functions and setup before execution
 
 function setup() {
-  //create canvas, black background
-  createCanvas(windowWidth, (windowHeight * 2));
-  background(0);
 
-  //text properties...
+  //creates a canvas variable that allows positioning inside HTML
+  var cnv = createCanvas(windowWidth, (windowHeight * 1.7));
+  //alocate the canavs within the <div> element called "canvas"
+  cnv.parent('canvas');
+  //draw the background black with transparency (the gifs are below embedded in the CSS)
+  background(0, 0, 0, 50);
+
+  // frameRate(1);
+
+  //instantiate RiTa lexicon, loads an array of English language words
+  //lexicon will be called during mutations for word substitutions
+  lexicon = new RiLexicon();
+  //create markov object for sentence generation
+  //arguement represents n-grades which will change accuracy/randomness
+  markovSen = new RiMarkov(4);
+  //create markov object for word replacement
+  markovWor = new RiMarkov(3);
+
+  //the training text to use in markov chains is loaded in the markov objects here
+  markovSen.loadText(train.join(' '));
+  markovWor.loadText(train.join(' '));
+
+  //a boolean used to set initial line count, because of the structure of the functions...
+  //line count updating (additons, deletions) can interefere with the inital count...
+  //this boolean controls when the initial count is used for summation
+  lineBool = false;
+}
+
+//--DRAW----------------------------------
+//Draw will actually only loop through once in this code, the difference between it and...
+//setup is similar to preload(), setup loads assets through RiTa fucntions, the reason for...
+//this is to limit the mutations to one round per visit, which work more efficiently once the training is properly analyzed.
+
+function draw() {
+
+  //draw the background black with transparency (the gifs are below embedded in the CSS)
+  background(0, 0, 0, 50);
+  //set fill to white
   fill(255);
+  //load custom font for use in text command
   textFont(myFont);
+  //set text size
   textSize(18);
+  //set text alignment
   textAlign(CENTER);
   //text box draw mode
   rectMode(CENTER);
 
-  //instantiate RiTa objects
-  lexicon = new RiLexicon();
-  //arguement represents n-grades and may be changed here
-  markovSen = new RiMarkov(4);
-  markovWor = new RiMarkov(3);
 
-  //the training text to use in markov chains
-  markovSen.loadText(sm.join(' '));
-  markovWor.loadText(sm.join(' '));
+  //analyze text through RiTa functions for mutation()
+  analysis();
+  //display text on screen
+  outputText();
 
-  //run through poem array and compile string data for RiTa
-  for (i = 0; i < s.length; i++) {
-    //turns array into single string
-    sTemp += s[i];
-  }
-
-  //instantiate the first output string for processing
-  output[0] = '';
-
-  //processes string for word and pos utility
-  processRita();
-  //creates mutations within the poem
-  autopoesis();
 
 }
 
 //--ANALYSIS-----------------------------
+// The analysis function reads in string data from arrayfromPhp (see RetrieveData())
 
-function processRita() {
+function analysis() {
 
-  //create a Rita string
-  rs = RiString(sTemp);
-  //analyze linguistics of the string
-  words = rs.words();
-  pos = rs.pos();
+  //initial properties for the loop, lineNum is used to call index values in an array
+  //set the index called to the first space, this will be line one
+  lineNum = 0;
+  //mutationArray stores the post-processed strings that will be outputted and saved
+  //each new index must be instantiated as a string
+  mutationArray[0] = '';
 
-  //variable for noun counting
-  //nouns = 0;
+  //loops through a nested for loop that creates a lineArray that sperates tagged items from...
+  //arrayFromPhp into an array where each line is stored as a string
+  for (var i = 0; i < arrayFromPhp.length; i++) {
 
-  //calculate the number of nouns in the string
-  // for (var i = 0; i < pos.length; i++) {
-  //   if (pos[i] === 'nn') {
-  //     //add one to variable
-  //     nouns += 1;
-  //   }
-  // }
+    // each entry in the file has a label "line" - whose value is an array of strings
+    lineArray = arrayFromPhp[i].line;
+    //measures initial line count in poem, used to control line formatting as the poem mutates
+    intLine = lineArray.length;
+    //only sum the initial line count once into maxLine
+    //maxLine controls the length of mutationArray and what is outputted/saved
+    //maxline will be incremented or subtracted from here out depending on the mutation
+    if (lineBool == false) {
+      maxLine = intLine;
+      lineBool = true;
+    }
+
+    //this section of the nested for loop will call each line
+    for (var j = 0; j < lineArray.length; j++) {
+
+      //creates a temporary string out of the string within lineArrayBuffer
+      //the RiString function has difficulties calling array values, they function...
+      //better with a singular string variable.
+      var sTemp = lineArray[j];
+      //if the string is not empty, which usually means a break line...
+      //create a RiTa string. These string functions allow processing by further RiTa functions.
+      if (sTemp != "") {
+        //the RiTa string object which will be used below
+        rs = RiString(sTemp);
+        console.log("RiTa " + rs);
+        //analyze the linguistics of the string
+        //the words array will contain each word on that line as an individual string replacement...
+        //this is used to modify individual words and modify line lengths without losing data.
+        words = rs.words();
+        console.log("words " + words);
+        //the pos array does the same as the words array except saves each element as a pos tag...
+        //the pos tag indicates how the word functions in the poem, because it line up witht he word array...
+        //one can modify words based on pos using the same index number [i], which is done in mutate()
+        pos = rs.pos();
+      }
+      console.log(words.length);
+      //skip spaces
+      // if(words.length >= 1){
+      //mutates word array
+      mutate();
+      // }
+    }
+  }
 }
 
+//--MUTATIONS------------------------------
+//This function mutates words, sentences, formatting, and pos within the poem.
+//mutate() runs in tandem with analysis(). The analysis creates an array of words from each line...
+//then mutate processes each line seperately before exiting and being recalled.
 
-//--MUTATIONS-----------------------------
 
-function autopoesis() {
+function mutate() {
 
-  //compile an output string based on pos, nouns will be replaced randomly (mutations)
+  //loop through each line's words before exiting loop
   for (var i = 0; i < words.length; i++) {
-    //create a mutation number so only a fixed number can mutate
-    var mutate = random(100);
-    var addition = random(100);
-    //variable for line mutation
-    var lineBr = random(100);
-    add = false;
+    //creation of probability variables for mutations to occur
+    //mutation probability for word substitution
+    var mutate = int(random() * 20);
+    //mutation probability for formatting
+    var lineBr = int(random() * 300);
 
-    //if the part of speech is a noun, randomize an adjective addition
-    if ((pos[i] === 'nn') && (addition <= 40)) {
-      //output a random adjective
-      output[outputNum] += lexicon.randomWord('jj');
-      //add a space
-      output[outputNum] += ' ';
-      //add a words from the original string back into the output, after adjective
-      output[outputNum] += words[i];
-      //add a space
-      output[outputNum] += ' ';
-      //tell Rita a word has been added to avoid additional mutations on this word
-      add = true;
-
+    //if the word is a noun and the probability logic is satisfied call this mutation.
+    //sense pos[] and words[] align in index we can use the same variable.
+    if ((pos[i] === 'nn') && (mutate <= 3)) {
+      //create a variable for word substitution
+      //the word is chosen from a lexicon bank created in setup via RiTa.js
+      var missense = lexicon.randomWord('nn');
+      //add new word in the current location of the previous word inside mutationArray
+      mutationArray[lineNum] += missense;
+      //add a space for formatting
+      mutationArray[lineNum] += " ";
     }
-    // if the pos is a noun attempt to swap in a contextually appropriate word
-    else if ((pos[i] === 'nn') && (mutate <= 90) && add == false) {
-
-      //analyze the word and search for related tokens
-      result = markovWor.getCompletions([words[i - 1]], [words[i + 1]]);
-      if (result != null) {
-        //choose a random from the array
-        var rand = int(result.length / 2);
-
-        console.log("1: " + result);
-        console.log("2: " + result[rand]);
-
-        if (result[rand] == undefined || result[rand] == " " || result[rand] == ",") {
-          result = lexicon.randomWord('nn');
-          console.log("3: " + result);
-          //output the generated word
-          //markers have been temporarily added for debugging
-          // output[outputNum] += "GENN ";
-          output[outputNum] += result;
-          // output[outputNum] += " END";
-          //add a space
-          output[outputNum] += ' ';
-        } else {
-          //output the generated word
-          //markers have been temporarily added for debugging
-          // output[outputNum] += "GENW ";
-          output[outputNum] += result[rand];
-          // output[outputNum] += " END";
-          //add a space
-          output[outputNum] += ' ';
-        }
-      }
-      // console.log("2: " + result.toString());
-      //if null, return a random noun
-      else {
-        result = lexicon.randomWord('nn');
-        console.log("4: " + result);
-        //output the generated word
-        //markers have been temporarily added for debugging
-        // output[outputNum] += "GENN ";
-        output[outputNum] += result;
-        // output[outputNum] += " END";
-        //add a space
-        output[outputNum] += ' ';
-      }
-    }
-    // if no mutations occur, reoutput the original word/article
+    //if a mutation does not occur, place the original word into mutationArray
     else {
-
-      //add a words from the original string back into the output
-      output[outputNum] += words[i];
-      //add a space
-      output[outputNum] += ' ';
+      //add current word from line into array
+      mutationArray[lineNum] += words[i];
+      //add a space for formatting
+      mutationArray[lineNum] += " ";
 
     }
-    //seperates line via mutation probability and possibly adds a markov sentence
-    if (((i % 8 == 0) && (i != 0)) || (lineBr < 2)) {
+    //create another probability variable for random line addition
+    //this line will be seperate from the original poem and will be generated via...
+    //markov analysis using the training poems supplied
+    var newSen = int(random() * 1000);
+    //if the line break mutation is met, trigger the following...
+    if (lineBr < 3) {
+      //increas the line number, meaning shift down a line and create a new string
+      lineNum++;
+      //increase the total line count in the poem
+      maxLine++;
+      //instatiate the new line
+      mutationArray[lineNum] = '';
+      // console.log("break at " + lineBr);
 
-      //increase output line count
-      outputNum += 1;
-      //instantiate new line
-      output[outputNum] = '';
 
-      //sentence probability
-      var addSen = random(10);
-      // if triggered, add a new markov sentence
-      if (addSen < 2) {
+    // if triggered, add a new markov generated sentence
+    } else if (newSen < 5) {
+      //increas the line number, meaning shift down a line and create a new string
+      lineNum++;
+      //increase the total line count in the poem
+      maxLine++;
+      //instatiate the new line
+      mutationArray[lineNum] = '';
+      // console.log("GEN");
 
+      //generate a new markov sentence using a RiTa.js function
+      var sen = markovSen.generateSentence();
+      //create a new RiTa object for analysis of the sentence
+      var riSen = RiString(sen);
+      //analyze the generated string to get a word count for approx. length
+      var senWords = riSen.words();
+
+      //if the length exceeds 14 words, regenerate the sentence and do this until...
+      //the length is below 14 so that it fits in the context of the poem and text box.
+      while (senWords.length >= 14) {
         //generate a new markov sentence
-        var sen = markovSen.generateSentence();
-        //analyze generated string to get a word count for approx. length
-        var riSen = RiString(sen);
-        var senWords = riSen.words();
-
-
-        //clip length if it exceeds the text box
-        while (senWords.length >= 14) {
-          //generate a new markov sentence
-          sen = markovSen.generateSentence();
-          //reanalyze the sentence while the loop is running
-          //the loop will only break when the word count is sufficiently small
-          riSen = RiString(sen);
-          senWords = riSen.words();
-          // console.log("M: " + senWords);
-        }
-
-        //output generated sentence with temporary markers
-        output[outputNum] += "GEN ";
-        output[outputNum] += sen;
-        //increment line count
-        outputNum += 1;
-        //instantiate new line
-        output[outputNum] = '';
+        sen = markovSen.generateSentence();
+        //reanalyze the sentence while the loop is running
+        //the loop will only break when the word count is sufficiently small
+        riSen = RiString(sen);
+        senWords = riSen.words();
       }
+      //temporary markers
+      // mutationArray[lineNum] += "GEN ";
+      //add the generated sentence into the mutationArray
+      mutationArray[lineNum] += sen;
+      // console.log("gen");
     }
   }
+  // console.log("line " + lineNum + " index " + i + " " + mutationArray[lineNum]);
 
-  //before exiting the mutation function, output the text
-  //outputs text with line formatting using lineCount and looping
-  for (var i = 0; i <= outputNum; i++) {
-
-    //probability for a deletion mutation
-    var delMut = random(20);
-    if (delMut < 2) {
-
-    } else {
-
-      text(output[i], width / 2, (((height / 2) - 100) + (lineCount * 30)), 1000, 1000);
-      lineCount++;
-    }
+  //this section marks the break of the for loop inside the mutation function...
+  //now increase the line number and prepare for another call, regardless we will need a new line.
+  lineNum++;
+  //if we are not at the end of the poem, initialize the new line.
+  if (lineNum <= maxLine) {
+    mutationArray[lineNum] = '';
   }
-
-  //save rebuilt poem into the storage text file
-  saveText();
 
 }
 
-//--SAVE-----------------------------
+//--OUTPUT---------------------------------
+//Output recieves the reconstructed string arrays from mutation via mutationArray...
+//and constructs the outputted text to be displayed on screen then after displaying...
+//the text calls the save function
 
-function saveText() {
+function outputText() {
 
+  //create an offset variable for displaying lines horizontally
+  var offsetY = 0;
+  //loop through mutationArray at the designated poem lenght (maxLine)
+  for (var i = 0; i < maxLine; i++) {
+    //increase the offset for each line by 20px
+    offsetY += 20;
+    //draw text from mutationArray at the given coordinates
+    text(mutationArray[i], width / 2, (height / 2 + 100) + offsetY, 1000, 1000);
+  }
+  //call the save function for updating JSON infromation
+  saveData();
+  //stop the draw loop
+  noLoop();
+}
+
+
+//--SAVE-----------------------------------
+//The save function sends the entire mutationArray to the JSON file...
+//the PHP function is stored seperately in saveToFile.php
+
+function saveData() {
+  console.log("send data");
   $.ajax({
     type: "POST",
     url: "saveToFile.php",
     data: {
-      'stringData': output
+      'stringData': mutationArray
     },
+    success: function(resultData) {
+      console.log("success");
+    }
   });
-
 }
 
-//--TO IMPLEMENT-----------------------------
-//function crossOver();
-//function crossOverPoem();
+//--LOAD-----------------------------
+//The load function receives JSON data from the previous mutated poem using ajax...
+//The JSON file is saved within the sketch folder, its data is pushed to arrayFromPhp
 
-// //passes text without modification
-// function passPrev() {
-//
-//   //add a words from the original string back into the output
-//   output[outputNum] += words[i];
-//   //add a space
-//   output[outputNum] += ' ';
-//
-// }
+function receiveData() {
+  console.log("data incoming");
+  var fileName = 'lineFormatTest.json';
+  $.ajax({
+    //don't cache inforamtion so each load is up to date
+    cache: false,
+    url: fileName,
+    success: function(data) {
+      // do something now that the data is loaded
+      $.each(data, function(index, value) {
+        //debug
+        console.log(value);
+        // put each value into an array
+        arrayFromPhp.push(value);
+      });
+      console.log("done");
+    }
+  });
+}
+
+//--RESIZE-----------------------------
+//If the window is resized, adjust the canvas position *may affect formatting*
+
+function windowResized() {
+  resizeCanvas(windowWidth, (windowHeight*1.7));
+}

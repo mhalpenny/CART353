@@ -3,7 +3,7 @@
 if(isset($_POST['stringData']))
 	{
     //name of get_included_files
-    $fileName = "lineFormatTest.json";
+    $fileName = "theContents.json";
     //the current array of strings to be saved
     $inPhp = $_POST['stringData'];
     //format as a json formatted key value pair

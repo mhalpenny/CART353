@@ -1,0 +1,103 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+
+  background-image: url("assets/waves.gif");
+  background-position: center;
+  background-size: 1400px 1400px;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px
+}
+
+#canvas{
+width:100%;
+height:150%;
+}
+
+#titleBar{
+border-bottom: 2px solid white;
+float:left;
+width: 100%;
+margin: 0px;
+background-color: black;
+position:relative;
+
+
+}
+
+#logo{
+
+  width:100%;
+  height:100%;
+  display: inline;
+  position: absolute;
+
+
+}
+
+#imgBin{
+  width: 20%;
+  height: 100%;
+  display: inline;
+  position: absolute;
+  background-color: blue;
+
+}
+
+#about{
+  float:right;
+  height: inherit;
+  border-left: 2px solid white;
+  /* border-bottom: 2px solid white; */
+  width: 15%;
+  background-color: black;
+  display:inline;
+
+}
+
+#aboutText{
+
+  background-color: inherit;
+  padding: 6%;
+  color: white;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 2px;
+  font-family: monospace;
+
+}
+#gen{
+
+    width:30%;
+    margin-left: 55%;
+    margin-top: 1.2%;
+    background-color: inherit;
+    color: white;
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 2px;
+    font-family: monospace;
+    display:inline;
+    position:absolute;
+
+  }
+p{
+  background-color: inherit;
+}
+/*
+@media screen
+  and (min-device-width: 480px)
+  and (max-device-width: 800px)
+{
+  #logo{
+
+    width: 20%;
+    height:100%;
+    display:block;
+
+  }
+} */

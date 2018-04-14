@@ -13,17 +13,17 @@ var alt;
 //before loading the page execute this function...
 function preload() {
   //load string array from text file
-  data = loadStrings('nervous.txt');
+  data = loadStrings('poems.txt');
   // alt = loadStrings('assets/alt.txt');
 }
 
 function setup() {
-createCanvas(windowWidth, (windowHeight*2));
+createCanvas(windowWidth, (windowHeight));
 background(0);
 
 //text properties...
 fill(255);
-textSize(18);
+textSize(16);
 textAlign(CENTER);
 //text box draw mode
 rectMode(CENTER);
@@ -38,12 +38,17 @@ rectMode(CENTER);
 //   }
 // }
 
-var rm = new RiMarkov(2);
+var rm = new RiMarkov(5);
 rm.loadText(data.join(' '));
-var sentences = rm.generateSentences(8);
+var sentences = rm.generateSentences(10);
 
-text(sentences, width/2, (height/2 - 100), 800, 600);
+console.log(sentences);
 
+var offsetY = 0;
+for(var i = 0; i<sentences.length; i++){
+text(sentences[i], width/2, (height/2)+(300+offsetY), 1200, 1000);
+offsetY += 20;
+}
 
 }
 
