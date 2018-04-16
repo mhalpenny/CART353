@@ -2,6 +2,7 @@
 //Created by Matthew Halpenny
 //Created for CART353 taught by Rilla Khaled
 //PHP and JSON functions are modified from code created by Sabine Rosenberg
+//hosted at hybrid.concordia.ca/m_halpen/poetry_dna/dna.html
 
 
 //--VARIABLES----------------------------
@@ -12,6 +13,7 @@ var arrayFromPhp = [];
 var lineArrayBuffer = [];
 var lineArray = [];
 var mutationArray = [];
+var newMutationArray = [];
 
 //--PRELOAD------------------------------
 //Before loading the page this function will execute, this ensures all assets...
@@ -82,6 +84,9 @@ function draw() {
 
   //analyze text through RiTa functions for mutation()
   analysis();
+
+  spliceLines();
+
   //display text on screen
   outputText();
 
@@ -267,6 +272,33 @@ function outputText() {
   noLoop();
 }
 
+//--SPLICE---------------------------------
+//Splice acts as a deletion mutation and will remove whole lines of the poem at a time.
+//They only appear when the text gets long enough and are rare but self regulate the poems length.
+
+function spliceLines(){
+
+//if the poem is longer than...
+if (mutationArray.length > 24){
+
+console.log("pre: " + mutationArray.length);
+//create variables that will randomly select an index start and splice length from inside the mutationArray.
+var ranIndex, ranLength;
+
+//the index value is randomly taken from the poems length and will choose a point to start the cut
+ranIndex = int(random(mutationArray.length));
+//the random length will determine how long the cut will be (how many lines)
+ranLength =  int(random(2, 10));
+
+//splice out the determined lines
+//the splice is stored in a temporary array that will be wiped after leaving the function...
+//the remaining mutationArray is modified in length and will have those elemtns removed
+var tempArray = mutationArray.splice(ranIndex, ranLength);
+console.log("post: " + mutationArray.length);
+
+}
+
+}
 
 //--SAVE-----------------------------------
 //The save function sends the entire mutationArray to the JSON file...
