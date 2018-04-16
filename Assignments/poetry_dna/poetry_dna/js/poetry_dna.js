@@ -2,7 +2,8 @@
 //Created by Matthew Halpenny
 //Created for CART353 taught by Rilla Khaled
 //PHP and JSON functions are modified from code created by Sabine Rosenberg
-//hosted at hybrid.concordia.ca/m_halpen/poetry_dna/dna.html
+//GIF by weinventyou https://giphy.com/gifs/ocean-sunset-l0IykubY4nGsqLLDG
+//hosted at https://hybrid.concordia.ca/m_halpen/poetry_dna/dna.html
 
 
 //--VARIABLES----------------------------
@@ -34,13 +35,11 @@ function preload() {
 function setup() {
 
   //creates a canvas variable that allows positioning inside HTML
-  var cnv = createCanvas(windowWidth, (windowHeight * 1.7));
+  var cnv = createCanvas(windowWidth, (windowHeight * 1.2));
   //alocate the canavs within the <div> element called "canvas"
   cnv.parent('canvas');
-  //draw the background black with transparency (the gifs are below embedded in the CSS)
-  background(0, 0, 0, 50);
-
-  // frameRate(1);
+  //draw the background black with transparency (the gif is below embedded in the CSS)
+  background(0, 0, 0, 40);
 
   //instantiate RiTa lexicon, loads an array of English language words
   //lexicon will be called during mutations for word substitutions
@@ -68,8 +67,8 @@ function setup() {
 
 function draw() {
 
-  //draw the background black with transparency (the gifs are below embedded in the CSS)
-  background(0, 0, 0, 50);
+  //draw the background black with transparency (the gif is below embedded in the CSS)
+  background(0, 0, 0, 40);
   //set fill to white
   fill(255);
   //load custom font for use in text command
@@ -85,6 +84,7 @@ function draw() {
   //analyze text through RiTa functions for mutation()
   analysis();
 
+  //moderates poem length through random deletion mutations
   spliceLines();
 
   //display text on screen
@@ -133,23 +133,19 @@ function analysis() {
       if (sTemp != "") {
         //the RiTa string object which will be used below
         rs = RiString(sTemp);
-        console.log("RiTa " + rs);
         //analyze the linguistics of the string
         //the words array will contain each word on that line as an individual string replacement...
         //this is used to modify individual words and modify line lengths without losing data.
         words = rs.words();
-        console.log("words " + words);
         //the pos array does the same as the words array except saves each element as a pos tag...
         //the pos tag indicates how the word functions in the poem, because it line up witht he word array...
         //one can modify words based on pos using the same index number [i], which is done in mutate()
         pos = rs.pos();
       }
-      console.log(words.length);
-      //skip spaces
-      // if(words.length >= 1){
-      //mutates word array
-      mutate();
-      // }
+
+        //mutates word array created in analysis() line by line
+        mutate();
+
     }
   }
 }
@@ -201,10 +197,10 @@ function mutate() {
       maxLine++;
       //instatiate the new line
       mutationArray[lineNum] = '';
-      // console.log("break at " + lineBr);
 
 
-    // if triggered, add a new markov generated sentence
+
+      // if triggered, add a new markov generated sentence
     } else if (newSen < 5) {
       //increas the line number, meaning shift down a line and create a new string
       lineNum++;
@@ -212,7 +208,7 @@ function mutate() {
       maxLine++;
       //instatiate the new line
       mutationArray[lineNum] = '';
-      // console.log("GEN");
+
 
       //generate a new markov sentence using a RiTa.js function
       var sen = markovSen.generateSentence();
@@ -231,11 +227,10 @@ function mutate() {
         riSen = RiString(sen);
         senWords = riSen.words();
       }
-      //temporary markers
-      // mutationArray[lineNum] += "GEN ";
+
       //add the generated sentence into the mutationArray
       mutationArray[lineNum] += sen;
-      // console.log("gen");
+
     }
   }
   // console.log("line " + lineNum + " index " + i + " " + mutationArray[lineNum]);
@@ -259,15 +254,19 @@ function outputText() {
 
   //create an offset variable for displaying lines horizontally
   var offsetY = 0;
+
+  //call the save function for updating JSON infromation
+  saveData();
+
   //loop through mutationArray at the designated poem lenght (maxLine)
   for (var i = 0; i < maxLine; i++) {
+
     //increase the offset for each line by 20px
     offsetY += 20;
     //draw text from mutationArray at the given coordinates
-    text(mutationArray[i], width / 2, (height / 2 + 100) + offsetY, 1000, 1000);
+    text(mutationArray[i], width / 2, (height / 2 + 220) + offsetY, 1000, 1000);
+
   }
-  //call the save function for updating JSON infromation
-  saveData();
   //stop the draw loop
   noLoop();
 }
@@ -276,28 +275,45 @@ function outputText() {
 //Splice acts as a deletion mutation and will remove whole lines of the poem at a time.
 //They only appear when the text gets long enough and are rare but self regulate the poems length.
 
-function spliceLines(){
+function spliceLines() {
 
-//if the poem is longer than...
-if (mutationArray.length > 24){
+  ranSwitch = int(random()*10);
+  //if the poem is longer than...
+  if (mutationArray.length > 24 && ranSwitch < 6) {
 
-console.log("pre: " + mutationArray.length);
-//create variables that will randomly select an index start and splice length from inside the mutationArray.
-var ranIndex, ranLength;
 
-//the index value is randomly taken from the poems length and will choose a point to start the cut
-ranIndex = int(random(mutationArray.length));
-//the random length will determine how long the cut will be (how many lines)
-ranLength =  int(random(2, 10));
+    //create variables that will randomly select an index start and splice length from inside the mutationArray.
+    var ranIndex, ranLength;
 
-//splice out the determined lines
-//the splice is stored in a temporary array that will be wiped after leaving the function...
-//the remaining mutationArray is modified in length and will have those elemtns removed
-var tempArray = mutationArray.splice(ranIndex, ranLength);
-console.log("post: " + mutationArray.length);
+    //the index value is randomly taken from the poems length and will choose a point to start the cut
+    ranIndex = int(random(mutationArray.length));
+    //the random length will determine how long the cut will be (how many lines)
+    ranLength = int(random(2, 10));
 
-}
+    //splice out the determined lines
+    //the splice is stored in a temporary array that will be wiped after leaving the function...
+    //the remaining mutationArray is modified in length and will have those elemtns removed
+    var tempArray = mutationArray.splice(ranIndex, ranLength);
+    console.log("RANDOM cut");
 
+  } else if (mutationArray.length > 15 && ranSwitch > 6){
+
+
+        //create variables that will randomly select an index start and splice length from inside the mutationArray.
+        var ranIndex, ranLength;
+
+        //the index value is randomly taken from the poems length and will choose a point to start the cut
+        // ranIndex = int(random(mutationArray.length));
+        ranIndex = int(random(2, 5));
+        //the random length will determine how long the cut will be (how many lines)
+        ranLength = int(random(2, 5));
+
+        //splice out the determined lines
+        //the splice is stored in a temporary array that will be wiped after leaving the function...
+        //the remaining mutationArray is modified in length and will have those elemtns removed
+        var tempArray = mutationArray.splice((maxLine - ranIndex), ranLength);
+        console.log("bottom cut");
+  }
 }
 
 //--SAVE-----------------------------------
@@ -324,7 +340,7 @@ function saveData() {
 
 function receiveData() {
   console.log("data incoming");
-  var fileName = 'lineFormatTest.json';
+  var fileName = 'lineFormat.json';
   $.ajax({
     //don't cache inforamtion so each load is up to date
     cache: false,
@@ -346,5 +362,5 @@ function receiveData() {
 //If the window is resized, adjust the canvas position *may affect formatting*
 
 function windowResized() {
-  resizeCanvas(windowWidth, (windowHeight*1.7));
+  resizeCanvas(windowWidth, (windowHeight * 1.2));
 }
