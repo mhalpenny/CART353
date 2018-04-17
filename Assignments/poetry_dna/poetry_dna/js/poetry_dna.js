@@ -3,7 +3,14 @@
 //Created for CART353 taught by Rilla Khaled
 //PHP and JSON functions are modified from code created by Sabine Rosenberg
 //GIF by weinventyou https://giphy.com/gifs/ocean-sunset-l0IykubY4nGsqLLDG
-//hosted at https://hybrid.concordia.ca/m_halpen/poetry_dna/dna.html
+
+//*FOR RILLA*
+//The website is hosted at https://hybrid.concordia.ca/m_halpen/poetry_dna/dna.html
+//There are occassional PHP issues on the Concordia server that I couldnt fully resolve so I've attatched a video
+//in the GitHub in case theres an issue. Its up and working right now but if the site goes down please let me know
+//via email and ill fix it right away! My artist statement is hosted on the website as well!
+//Best,
+//Matt
 
 
 //--VARIABLES----------------------------
