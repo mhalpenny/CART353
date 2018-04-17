@@ -21,6 +21,8 @@ var lineArrayBuffer = [];
 var lineArray = [];
 var mutationArray = [];
 var newMutationArray = [];
+var start = false;
+
 
 //--PRELOAD------------------------------
 //Before loading the page this function will execute, this ensures all assets...
@@ -35,6 +37,8 @@ function preload() {
   myFont = loadFont('assets/PitchTest-Regular.otf');
 }
 
+
+
 //--SETUP--------------------------------
 //Initial functions and setup before execution
 
@@ -47,6 +51,8 @@ function setup() {
   //draw the background black with transparency (the gif is below embedded in the CSS)
   background(0, 0, 0, 40);
 
+  //slow framrate to allow JSON fetching to keep up on slow servers
+  frameRate(1);
   //instantiate RiTa lexicon, loads an array of English language words
   //lexicon will be called during mutations for word substitutions
   lexicon = new RiLexicon();
@@ -73,8 +79,6 @@ function setup() {
 
 function draw() {
 
-  //draw the background black with transparency (the gif is below embedded in the CSS)
-  background(0, 0, 0, 40);
   //set fill to white
   fill(255);
   //load custom font for use in text command
@@ -86,19 +90,32 @@ function draw() {
   //text box draw mode
   rectMode(CENTER);
 
+  //timer function ensures the data is loaded before executing the code
+  //usually this is done inside preload() but there are some issues using
+  //custom functions within preload()in p5.js
+  var ms = millis();
+  if (ms >= 4000){
+
+  //draw the background black with transparency (the gif is below embedded in the CSS)
+  background(0, 0, 0, 0);
 
   //analyze text through RiTa functions for mutation()
   analysis();
-
+  console.log("analysis");
   //moderates poem length through random deletion mutations
   spliceLines();
-
+  console.log("spliceLines");
   //display text on screen
   outputText();
-
-
+  console.log("outputText");
+  //call the save function for updating JSON infromation
+  saveData();
+  console.log("saveData");
+  //stop the draw loop
+  noLoop();
+  console.log("noLoop");
 }
-
+}
 //--ANALYSIS-----------------------------
 // The analysis function reads in string data from arrayfromPhp (see RetrieveData())
 
@@ -251,33 +268,6 @@ function mutate() {
 
 }
 
-//--OUTPUT---------------------------------
-//Output recieves the reconstructed string arrays from mutation via mutationArray...
-//and constructs the outputted text to be displayed on screen then after displaying...
-//the text calls the save function
-
-function outputText() {
-
-  //create an offset variable for displaying lines horizontally
-  var offsetY = 0;
-
-  //loop through mutationArray at the designated poem lenght (maxLine)
-  for (var i = 0; i < maxLine; i++) {
-
-    //increase the offset for each line by 20px
-    offsetY += 20;
-    //draw text from mutationArray at the given coordinates
-    text(mutationArray[i], width / 2, (height / 2 + 220) + offsetY, 1000, 1000);
-
-  }
-
-  //call the save function for updating JSON infromation
-  saveData();
-
-  //stop the draw loop
-  noLoop();
-}
-
 //--SPLICE---------------------------------
 //Splice acts as a deletion mutation and will remove whole lines of the poem at a time.
 //They only appear when the text gets long enough and are rare but self regulate the poems length.
@@ -323,6 +313,28 @@ function spliceLines() {
   }
 }
 
+//--OUTPUT---------------------------------
+//Output recieves the reconstructed string arrays from mutation via mutationArray...
+//and constructs the outputted text to be displayed on screen then after displaying...
+//the text calls the save function
+
+function outputText() {
+
+  //create an offset variable for displaying lines horizontally
+  var offsetY = 0;
+
+  //loop through mutationArray at the designated poem lenght (maxLine)
+  for (var i = 0; i < maxLine; i++) {
+
+    //draw text from mutationArray at the given coordinates
+    text(mutationArray[i], width / 2, (height / 2 + 220) + offsetY, 1000, 1000);
+
+    //increase the offset for each line by 20px
+    offsetY += 20;
+
+  }
+}
+
 //--SAVE-----------------------------------
 //The save function sends the entire mutationArray to the JSON file...
 //the PHP function is stored seperately in saveToFile.php
@@ -363,6 +375,7 @@ function receiveData() {
       console.log("done");
     }
   });
+  start = true;
 }
 
 //--RESIZE-----------------------------
