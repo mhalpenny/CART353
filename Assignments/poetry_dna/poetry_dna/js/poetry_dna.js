@@ -12,7 +12,6 @@
 //Best,
 //Matt
 
-
 //--VARIABLES----------------------------
 //Declares all global variables and arrays that will be used across the sketch
 
@@ -301,7 +300,7 @@ function spliceLines() {
     //the splice is stored in a temporary array that will be wiped after leaving the function...
     //the remaining mutationArray is modified in length and will have those elemtns removed
     var tempArray = mutationArray.splice(ranIndex, ranLength);
-    console.log("RANDOM cut");
+
 
   } else if (mutationArray.length > 15 && ranSwitch > 6){
 
@@ -319,7 +318,7 @@ function spliceLines() {
         //the splice is stored in a temporary array that will be wiped after leaving the function...
         //the remaining mutationArray is modified in length and will have those elemtns removed
         var tempArray = mutationArray.splice((maxLine - ranIndex), ranLength);
-        console.log("bottom cut");
+
   }
 }
 
