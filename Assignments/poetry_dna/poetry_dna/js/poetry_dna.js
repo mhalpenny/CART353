@@ -261,9 +261,6 @@ function outputText() {
   //create an offset variable for displaying lines horizontally
   var offsetY = 0;
 
-  //call the save function for updating JSON infromation
-  saveData();
-
   //loop through mutationArray at the designated poem lenght (maxLine)
   for (var i = 0; i < maxLine; i++) {
 
@@ -273,6 +270,10 @@ function outputText() {
     text(mutationArray[i], width / 2, (height / 2 + 220) + offsetY, 1000, 1000);
 
   }
+
+  //call the save function for updating JSON infromation
+  saveData();
+
   //stop the draw loop
   noLoop();
 }

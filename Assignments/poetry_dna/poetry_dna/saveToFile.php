@@ -1,5 +1,4 @@
 <?php
-
 if(isset($_POST['stringData']))
 	{
     //name of get_included_files
